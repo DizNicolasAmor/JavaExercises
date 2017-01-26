@@ -1,11 +1,16 @@
 /*
- * Este programa es un enigma que irá en mi CV online. 
- * Quien quiera ver mi CV deberá resolver dicho enigma. 
+ * This enigma is a mathematical challenge. 
+ * Este enigma es un desafío matemático. 
+ *
+ * Recommendation: play before you read the code. 
+ * Recomendación: jugar antes de leer el código. 
  */
 
 /*
  * @author Diz, Nicolás Amor
+ * Jan, 2017. 
  */
+
 import java.util.Scanner;
 import java.lang.Math;
 
