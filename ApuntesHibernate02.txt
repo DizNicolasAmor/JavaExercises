@@ -1,0 +1,146 @@
+ApuntesHibernate02
+
+EL MAIN DEL PROYECTO DE HIBERNATE
+
+  PRIMERA CLASE: 
+        
+        
+    String marca = "Found";
+    String modelo = "Found"; 
+    List<String> marcas = new ArrayList<>();
+    marcas.add("ford");
+    marcas.add("fiat");
+    
+    SessionFactory factory = SessionManager.getSessionFactory();
+    Session s = factory.openSession();
+    Transaction tx = s.beginTransaction();
+
+ /*   Auto ford = new Auto();     //"ford", "fiesta"
+    ford.setId(1);
+    s.delete(ford);                 */
+
+ tx.commit();
+/*    Auto coco = new Auto("ford", "fiesta");
+    coco.setId(50);
+    s.update(coco);     */
+        
+ //si quiero seleccionar un auto: 
+  Auto a = (Auto)s.get(Auto.class, 2L);   
+ 
+  /*     tengo que aclarar que 
+ ->en el 1er campo, pongo la clase (Auto) y 
+ .class para indicarle q me traiga el objeto q pertenece a dicha clase; 
+ -> el serializable, de qué tipo es? x ej, acá es un LONG; 
+ 
+ Luego....--> el método get te devuelve un Object. 
+ así que tenés que castearlo. 
+  por eso puse Auto a = (Auto)  blablabla
+  
+  hay que hacerlo así xq cuando se creó el framework no existían los genéricos. 
+  pero podría hacerlo como genérico así: 
+  
+  public <T> T get (Class <T> clazz, Serializable id); 
+ 
+ */
+
+ 
+//acá pido x pantalla el auto que seleccioné: 
+    //  System.out.println(a);
+    
+ 
+ //si quiero seleccionar todos los autos: 
+ //lenguaje HQL: 
+/*  Query q = s.createQuery("from Auto");
+  List<Auto> autos = q.list();
+    for (Auto b : autos){
+        System.out.println(b);
+    }*/
+  
+    //  otra forma más fácil de escribirlo (en java8)
+//    List<Auto> autos = s.createQuery("from Auto").list();
+//    autos.forEach(System.out :: println);
+    
+    Query q = s.createQuery("FROM Auto a WHERE a.marca = :ma  AND a.modelo = :mo"); 
+    //todos los String q empiezan con < : > en HQL
+    //significa que son como un comodín, donde más adelante yo le voy a poner el valor. 
+    //fijate que en el prox renglón uso un set. 
+    
+    
+    q.setParameter("ma", marca).list().forEach(System.out::println);
+    q.setParameter("mo", modelo).list().forEach(System.out::println);
+    
+    Query q2 = s.createQuery("FROM Auto a WHERE a.marca IN (:marcas)");
+    
+    q2.setParameterList("marcas", marcas); 
+            
+    s.close();
+    factory.close();
+    
+    
+
+
+
+--------SEGUNDA CLASE: 
+
+
+    public static void main(String[] args) {
+
+        //MAIN DE LA SEGUNDA CLASE DE HIBERNATE:  
+        
+        SessionFactory factory = SessionManager.getSessionFactory();
+        
+        try{
+            AutoRepository autoRepo = new AutoRepository(factory);
+            
+            //acá estoy usando los métodos q creé en AutoRepository.java
+/*            Auto ford = new Auto("Ford", "Modelo", 200);
+            Long id = autoRepo.save(ford);
+            
+            ford.setId(id);
+            ford.setModelo("Fiesta");
+            autoRepo.update(ford);
+            
+            Auto cloneFord = autoRepo.getById(id);
+            System.out.println(cloneFord);
+            autoRepo.getAll().forEach(System.out::print);
+            autoRepo.delete(ford);
+  */      
+
+    //ahora quiero hacer una query p que me devuelva todas las marcas: 
+    //la query está adentro del método. ir a AutoRepository.java
+    autoRepo.getMarcas().forEach(System.out::println);
+    
+    //ahora quiero buscar el precio más alto. 
+    System.out.println(autoRepo.getMayorPrecio());
+
+    //qué pasa si hago esto? 
+    //autoRepo.getMayorPrecio().forEach(System.out::println);
+
+    //ahora quiero que la table me devuelva: 
+    //el precio máximo y el modelo de cada marca. 
+    //tuve que crear una clase Report.java,  y el método generateReport en AutoRepository.java; 
+    autoRepo.generateReport().forEach(System.out::println);
+    
+    int currentPage = 1; 
+    List<Auto> page = new ArrayList<>();
+
+    do{
+        page = autoRepo.getAllPaged(currentPage);
+        currentPage++;
+        page.forEach(System.out::println);
+    }while(page.size() >= AutoRepository.PAGE_SIZE);
+    
+    
+    int pages = autoRepo.pages();
+    System.out.println(pages); 
+    for(int i = 1; i <= pages; i++) {
+        autoRepo.getAllPaged(i).forEach(System.out::println);
+    }
+    
+    }finally{
+            factory.close();
+        }
+        
+
+    }  //main
+
