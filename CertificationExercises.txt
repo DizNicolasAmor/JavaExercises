@@ -1,0 +1,351 @@
+CertificationExercises
+
+
+Página p practicar para el Certificado de Oracle en Java: 
+
+https://coderanch.com/wiki/659882/Wiki/OCPJP-Mock-Tests
+
+- - - - - - - - - - - - - - 
+
+
+recomendación: p dar la certificación, ir con los tutoriales bien leídos de: 
+-threads, 
+-lambda, 
+-genericos. 
+
+- - - - - - - - - - 
+
+
+Exercises: 
+
+
+
+Given:
+ public class Test implements Runnable {
+
+ public void run() {
+    System.out.println("run.");
+    throw new RuntimeException("Problem");
+ }
+
+ public static void main(String[] args) {
+
+     Thread t = new Thread(new Test());
+    t.start();
+    System.out.println("End of method.");
+ }
+}
+
+Which two can be results? (Choose two.)
+
+A. End of method. java.lang.RuntimeException: Problem run.
+B. End of method. run. java.lang.RuntimeException: Problem
+C. java.lang.RuntimeException: Problem
+D. End of method. java.lang.RuntimeException: Problem
+
+
+
+Given:
+public class Test {
+	
+	 public static void main(String[] args) {
+	 new Test().syncTest();
+	 }
+	 
+	 void syncTest() {
+		 Object obj = new Object();
+		 synchronized (Thread.currentThread()) {
+		 obj.wait();
+		 obj.notify();
+		 }
+		 }
+	}
+Which two statements are true? (Choose two.)
+
+A. This class would not compile with error message "Unhandled exception type IllegalMonitorStateException.".
+B. This code can throw an InterruptedException.
+C. This class would not compile with error message "Unhandled exception type InterruptedException"
+D. This code can throw an IllegalMonitorStateException.
+
+
+
+Given:
+
+public class GotoGood extends Thread {
+
+	 private int x = 2;
+
+	 public static void main(String[] args) throws Exception {
+    	new GotoGood().makeItSo();
+	 }
+	
+	public GotoGood(){
+		 System.out.println("test");
+    	 x = 5;
+	     start();
+	 }
+	 
+	 public void makeItSo() throws Exception {
+	   join();
+	    x = x - 1;
+	    System.out.println(x);
+	 }
+	 
+	 public void run() { 
+		 System.out.println("run");
+		 x *= 2; 
+	 }
+}
+What is the output?
+
+A. test 4 run
+B. test run 9
+C. This class would not compile with error message "Unhandled exception type InterruptedException"
+D. This code can throw an IllegalMonitorStateException.
+
+
+
+Given:
+public class Test{
+	 
+	public static void main (String[] args) {
+	 	new Test().go();
+	 }
+	
+     public void go() {
+		 Runnable r = new Runnable() {
+			public void run() {
+			 System.out.print("foo");
+	 		}
+		 };
+
+	 	Thread t = new Thread(r);
+		t.start();
+	 	t.start();
+	   }
+	}
+
+what is the result?
+
+A. IllegalThreadStateException thrown at run time.
+B. The code executes normally and prints "foo".
+C. The code executes normally and prints nothing.
+D. Compilation fails.
+
+
+
+
+Question - 8
+
+Given:
+
+ public abstract class Base {
+
+ 	private int x;
+ 	private int y;
+
+ 	public abstract void method1();
+ 	
+	public void setValues(int x, int y) {
+ 			this.x = x;
+ 			this.y = y;
+ 		}
+ }
+
+Which two classes use the Base class correctly?
+
+A. public abstract class Child extends Base { private int z; }
+B. public class Child implements Base { private int z; }
+C. public class Child extends Base { private int z; public void method1(); }
+D. public class Child extends Base { private int z; public void method1() {/* code here */} }
+
+
+
+Given:
+
+public class Test {
+
+	 public static void main(String[] args) {
+	 	new Test().printValue("good", 1);
+	 	new Test().printValue("good", "morning", 2);
+	 }
+
+	 public void printValue(String... y, int x) {
+	 	System.out.print(y[y.length - 1] + " ");
+   }
+ }
+
+
+What is the result?
+
+A. good morning
+B. good good
+C. good good morning
+D. Compilation fails.
+
+
+
+Which statement is true about the classes in the exhibit?
+1.public class Shape {
+2.	public void draw(String points){};
+3.}
+
+1.public class Circle extends Shape {
+2.	public void draw(String points){};
+3.}
+
+1.public class KoKo {
+2.	public Shape doit() {
+3.		return new Shape();
+4.	}
+
+5.	public String printValue() {
+6.		return "Some Value";
+7.	}
+8.}
+
+1.public class Test extends KoKo {
+2.	 public Circle doit(){
+3.		 return new Circle();
+4.	 }
+5.		
+6.	 public Object printValue() {
+7.		 return "Some Value new";
+8.	 }
+9.}
+
+
+A. Compilation of class Circle will fail because of an error in line 2.
+B. Compilation of class Test will fail because of an error in line 2.
+C. Compilation of class Test will fail because of an error in line 6.
+D. Compilation will succeed for all classes
+
+
+
+Question - 12
+
+Which statement is true about the classes and interfaces in the exhibit?
+
+1.public interface A {
+2.	public void draw(String points);
+3.}
+
+1.public class B implements A {
+2.	public void draw(String points){};
+3.}
+
+1.
+  public class KoKo {
+2.	public A doit() {
+3.		//more code here
+4.	}
+5.	public String printValue() {
+6.		//more code here
+7.	}
+8.}
+
+1.public class Test extends KoKo {
+2.	public B doit(){
+3.	 //more code here
+4. }
+5.		
+6. private String printValue() {
+7.		 //more code here
+8. }
+9.}
+
+
+A. Compilation of class B will fail because of an error in line 2.
+B. Compilation of class Test will fail because of an error in line 2.
+C. Compilation of class Test will fail because of an error in line 6.
+D. Compilation will succeed for all classes and interfaces.
+
+
+
+
+
+What is the result?
+
+1.public class Shape {
+2.     String name = "No name";
+3.     public Shape(String nm) { 
+           name = nm; 
+		}
+4.}
+
+1.public class Circle extends Shape {
+2.	String cid = "0000";
+3.	public Circle(String id) {
+4.		cid = id;
+5.	}
+6.}
+
+1.public class CircleTest{
+2.	public static void main(String[] args){
+3.		Circle e = new Circle("test");
+4.		System.out.println(e.cid);
+5.	}
+6.}
+
+A. Compilation of class Circle will fail because of an error in line 3.
+B. test
+C. Compilation of class CircleTest will fail because of an error in line 3.
+D. Compilation will succeed for all classes and print "0000"
+
+
+
+Given:
+
+public class Man {
+	Man() { 
+	   System.out.print("Man "); 	   }
+	 }
+
+public class Father extends Man {
+	
+	Father(String type) { 
+	   System.out.print(type); 	 }
+}
+
+public class Son extends Father{
+
+	Son() {
+	    super("Father ");
+	    new Father("Son ");	}
+		
+    public static void main(String[] args){
+    	new Son();    }
+}
+
+What is the result?
+
+A. Compilation fails.
+B. Man Father Man Son
+C. Man Father Man
+D. Man Father Son
+
+
+
+Given:
+
+1.public interface AInf {
+2.	String toString();
+3.}
+
+1.public class B {
+2.	public static void main(String[] args){
+3.		System.out.println(new AInf() {
+4.			public String toString() { 
+                 return "success"; 
+		    }
+5.		});
+6.	}
+7.}
+
+What is the result?
+
+A. Compilation of class B will fail because of an error in line 3.
+B. Compilation of class B will fail because of an error in line 4.
+C. success 
+D. throws Exception
+
