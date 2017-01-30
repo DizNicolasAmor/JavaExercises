@@ -1,0 +1,413 @@
+ApuntesHibernate03
+
+-GenericRepository.java
+-Persona
+-Vendedor
+-Cliente
+-PersonaRepository.java
+
+ojo!!!
+en SessionManager.java tuve que agregar unas líneas al siguiente método: 
+
+    private static void registerMappers(Configuration config) throws MappingException {
+       config.addAnnotatedClass(ar.com.educacionit.hibernate.entities.Auto.class);
+
+       config.addAnnotatedClass(ar.com.educacionit.hibernate.entities.Persona.class);
+       config.addAnnotatedClass(ar.com.educacionit.hibernate.entities.Vendedor.class);
+       config.addAnnotatedClass(ar.com.educacionit.hibernate.entities.Cliente.class);
+       
+    }
+
+ahora voy a copiar las clases que creamos hoy: 
+
+
+GenericRepository.java
+
+	/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ar.com.educacionit.hibernate.entities.repository;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import ar.com.educacionit.hibernate.entities.Auto;
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+
+/**
+ *
+ * @author educacionit
+ */
+public abstract class GenericRepository <E, Pk extends Serializable> {
+
+        public SessionFactory sessionFactory;
+
+        public GenericRepository(SessionFactory sessionFactory) {
+            if (sessionFactory == null){
+               throw new RuntimeException("sessionFactory could not be null"); 
+            }
+            this.sessionFactory = sessionFactory;
+        }
+    
+    public Pk save(E entity){
+        Session s = sessionFactory.openSession();
+        Pk id = null;
+        Transaction tx = null; 
+        
+        try{
+            tx = s.beginTransaction();
+            id = (Pk) s.save(entity);
+            tx.commit();
+        }catch(HibernateException ex){
+            tx.rollback();
+            throw ex;
+        }finally{ s.close(); }
+        
+        return id; 
+    }
+    
+    
+    public E update(E entity){
+        Session s = sessionFactory.openSession();
+        Transaction tx = null; 
+        
+        try{
+            tx = s.beginTransaction();
+            s.update(entity);
+            tx.commit();
+        }catch(HibernateException ex){
+            tx.rollback();
+            throw ex;
+        }finally{   s.close();     }
+        
+        return entity; 
+    }
+
+    public void delete(E entity){
+        Session s = sessionFactory.openSession();
+        Transaction tx = null; 
+        
+        try{
+            tx = s.beginTransaction();
+            s.delete(entity);
+            tx.commit();
+        }catch(HibernateException ex){
+            tx.rollback();
+            throw ex;
+        }finally{    s.close();    }
+    }
+    
+    public E getById(Pk id){
+        Session s = sessionFactory.openSession();
+        E entity = (E) s.get(getType(), id);
+        
+        //el método getType es como si dijera  this.getType()
+        //es decir, en este ejemplo, es como si hiciera autoRepo.getType();
+        s.close();
+        return entity;
+    }
+
+
+    public Class getType(){
+        Class clazz = this.getClass();
+        Type superclass = clazz.getGenericSuperclass();
+        ParameterizedType genericType = (ParameterizedType) superclass;
+        Type [] generics = genericType.getActualTypeArguments();
+        return (Class) generics[0];
+        
+    }
+    
+
+    public List<E> getAll(){
+        Session s = sessionFactory.openSession();
+        List<E> entities = s.createQuery("From"+getType().getName()).list();
+        s.close();
+        return entities;
+    }
+    
+
+//    ejemplo de la biblioteca reflection: 
+ /*
+    //leer el paper de reflextion en el doc de oracle. 
+    
+    public void showState(Object o){
+        Class clazz = o.getClasss();
+        Method[] methods = clazz.getMethods();
+        for(Method m : methods){
+            if(m.getName().starsWith("get") && m.getParametersCount()==0){
+                System.out.println(m.invoque(o));
+            }
+  */
+          
+
+}
+
+
+
+PersonaRepository.java
+
+package ar.com.educacionit.hibernate.entities.repository;
+
+import ar.com.educacionit.hibernate.entities.Persona;
+import org.hibernate.SessionFactory;
+
+/**
+ *
+ * @author educacionit
+ */
+public class PersonaRepository extends GenericRepository <Persona, Long>{
+    
+    public PersonaRepository(SessionFactory sessionFactory) {
+        super(sessionFactory);
+    }
+
+
+}
+
+
+
+Persona.java
+
+package ar.com.educacionit.hibernate.entities;
+
+import javax.persistence.InheritanceType;
+import javax.persistence.*;
+
+/**
+ *
+ * @author educacionit
+ */
+
+
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Table(name="personas")
+@DiscriminatorColumn(name="pe_disc")
+@DiscriminatorValue("Pe")
+public class Persona {
+    @Id
+    @GeneratedValue
+    @Column(name="pe_id")
+    private Long id; 
+    
+    @Column(name="pe_nombre")
+    private String nombre; 
+    
+    @Column(name="pe_apellido")
+    private String apellido; 
+
+    public Persona(String nombre, String apellido) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+    }
+
+    public Persona() {
+    }
+    
+    
+}
+
+
+Vendedor.java
+
+
+package ar.com.educacionit.hibernate.entities;
+
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+/**
+ *
+ * @author educacionit
+ */
+@Entity
+@DiscriminatorValue("Ve")
+public class Vendedor extends Persona{
+    
+    @Column(name="ve_sueldo")
+    private float sueldo;
+
+    public Vendedor(String nombre, String apellido, float sueldo) {
+        super(nombre, apellido);
+        this.sueldo=sueldo;
+    }
+
+    public Vendedor() {
+    }
+    
+}
+
+
+Cliente.java
+
+package ar.com.educacionit.hibernate.entities;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+/**
+ *
+ * @author educacionit
+ */
+
+@Entity
+@DiscriminatorValue("Cl")
+public class Cliente extends Persona{
+    private float credito; 
+
+    public Cliente(String nombre, String apellido, float credito) {
+        super(nombre, apellido);
+        this.credito=credito;
+    }
+
+    public Cliente() {
+    }
+    
+}
+
+
+
+App.java
+
+
+package ar.com.educacionit.hibernate.testers;
+
+import ar.com.educacionit.hibernate.entities.Auto;
+import ar.com.educacionit.hibernate.entities.Cliente;
+import ar.com.educacionit.hibernate.entities.Vendedor;
+import ar.com.educacionit.hibernate.entities.repository.AutoRepository;
+import ar.com.educacionit.hibernate.entities.repository.PersonaRepository;
+import ar.com.educacionit.hibernate.manager.SessionManager;
+import java.util.ArrayList;
+import java.util.List;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
+public class App {
+
+    public static void main(String[] args) {
+
+        //MAIN DE LA TERCERA CLASE DE HIBERNATE:  
+        
+        SessionFactory factory = SessionManager.getSessionFactory();
+        
+        try{
+            PersonaRepository personaRepo = new PersonaRepository(factory);
+    
+           Cliente juan = new Cliente("Juan", "Pérez", 1000);
+           Vendedor coco = new Vendedor("Coco", "Sánchez", 2000);
+           personaRepo.save(juan);
+           personaRepo.save(coco);
+    
+        }finally{
+            factory.close();
+        }
+    
+    
+    }  //main
+}  //class app
+
+
+
+----2DA ESTRATEGIA:   UNA CLASE POR TABLA CONCRETA: 
+
+
+EN pERSONA.JAVA HICE:   
+
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name="personas")
+public class Persona {
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
+    @Column(name="pe_id")
+    private Long id; 
+ETCÉTERA...
+
+
+
+EN VENDEDOR.JAVA ESCRIBO:  
+@Entity
+@Table(name="vendedores")
+public class Vendedor extends Persona{
+ETCÉTERA...
+
+
+y en cliente queda:  
+@Entity
+@Table(name="clientes")
+public class Cliente extends Persona{
+
+    @Column(name="cl_credito")
+    private float credito; 
+etcétera....
+
+
+después en el main puedo preguntar:    
+
+
+  public static void main(String[] args) {
+
+        //MAIN DE LA TERCERA CLASE DE HIBERNATE:  
+        
+        SessionFactory factory = SessionManager.getSessionFactory();
+        
+        try{
+            PersonaRepository personaRepo = new PersonaRepository(factory);
+    
+           Cliente juan = new Cliente("Juan", "Pérez", 1000);
+           Vendedor coco = new Vendedor("Coco", "Sánchez", 2000);
+           personaRepo.save(juan);
+           personaRepo.save(coco);
+           
+           List<Persona> ps = personaRepo.getAll();
+    
+        }finally{
+            factory.close();
+        }
+    
+y tendría q aparecer la lista con las dos personas. 
+
+
+
+----3RA ESTRATEGIA:   JOINED:         ---ES LA FORMA MÁS RECOMENDADA. 
+
+
+en Persona.java escribo:  
+
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name="personas")
+public class Persona {
+    @Id
+    @GeneratedValue
+    @Column(name="pe_id")
+    private Long id; 
+etcétera... 
+
+
+en Vendedor.java escribo: 
+
+@Entity
+@Table(name="vendedores")
+@PrimaryKeyJoinColumn(name="ve_id")
+public class Vendedor extends Persona{
+
+
+y en Cliente.java
+
+@Entity
+@Table(name="clientes")
+@PrimaryKeyJoinColumn(name="cl_id")
+public class Cliente extends Persona{
+etcétera.... 
+
