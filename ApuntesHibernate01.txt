@@ -1,0 +1,530 @@
+ApuntesHibernate01
+
+
+HIBERNATE:
+
+
+-abrir MySQL
+-abrir xampp
+-en xamp, darle 'start' a mysql. después 'show'. 
+
+-abrir proyecto hibernate en netbeans. 
+-hasta ahora, queda así: 
+
+archivos: 
+autos.sql
+Auto.java
+SessionManager.java
+App.java
+AutoRepository.java
+Report.java
+
+
+
+---------autos.sql
+
+CREATE DATABASE `hibernate`;
+USE `hibernate`;
+CREATE TABLE `autos` (
+  `au_id` int(10) unsigned NOT NULL auto_increment,
+  `au_marca` varchar(255) NOT NULL default '',
+  `au_modelo` varchar(255) NOT NULL default '',
+  `au_precio` float NOT NULL,
+  PRIMARY KEY  (`au_id`)
+) ENGINE=MyISAM;
+
+
+/*
+
+CREATE DATABASE `hibernate`;
+
+USE `hibernate`;
+
+CREATE TABLE `autos` (
+  `au_id` int(10) unsigned NOT NULL auto_increment,
+  `au_marca` varchar(255) NOT NULL default '',
+  `au_modelo` varchar(255) NOT NULL default '',
+  `au_precio` float,
+  PRIMARY KEY  (`au_id`)
+) ENGINE=MyISAM;
+
+select*from autos;
+
+use `hibernate`;
+drop table  `autos`; 
+
+drop database `hibernate`;
+
+insert into `autos` values (321, 'ford','ford',20); 
+
+
+insert into `autos` values (1, 'ford','ford',20); 
+insert into `autos` values (2, 'fiat','qwe',25); 
+insert into `autos` values (3, 'peug','sdfs',30); 
+insert into `autos` values (4, 'fiat','bla',25); */
+
+
+
+----------Auto.java
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ar.com.educacionit.hibernate.entities;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ *
+ * @author educacionit
+ */
+
+    @Entity
+       @Table(name = "autos")
+
+public class Auto {
+    @Id
+    @Column(name="au_id")
+    @GeneratedValue
+    private long id;
+
+    @Column(name="au_marca")
+    private String marca;
+
+    @Column(name="au_modelo")
+    private String modelo; 
+
+    @Column(name="au_precio")
+    private float precio; 
+
+    public Auto(){    }
+    
+    public Auto(String marca, String modelo, float precio){
+        this.marca=marca;
+        this.modelo=modelo;
+        this.precio=precio;
+    }
+
+    public void setId(long id){
+        this.id=id;
+    }
+    
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+    
+    public long getId(){return id;}
+    
+    public String getMarca(){return marca;}
+    
+    public String getModelo(){return modelo;}
+
+    public float getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(float precio) {
+        this.precio = precio;
+    }
+
+    @Override
+    public String toString() {
+        return "Auto{" + "id=" + id + ", marca=" + marca + ", modelo=" + modelo + ", precio=" + precio + '}';
+    }
+    
+    
+       
+}   //clas
+
+
+-------SessionMaanger.java
+
+/*
+ * EducacionITSessionManager.java
+ *
+ */
+package ar.com.educacionit.hibernate.manager;
+
+import java.util.Properties;
+import org.hibernate.HibernateException;
+import org.hibernate.MappingException;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.Session;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+
+/**
+ *
+ * @author Sebastián S. Sanga <SebastianSanga@gmail.com>
+ */
+public abstract class SessionManager {
+
+    /**
+     * Creates a new instance of EducacionITSessionManager
+     */
+    public SessionManager() {
+    }
+
+    public static SessionFactory getSessionFactory() throws HibernateException {
+
+        // Instancia un objeto del tipo Configuration
+        Configuration config = new Configuration();
+
+        // Registra los mappers en la configuracion
+        registerMappers(config);
+
+        // Establece las propiedades de configuracion
+        config.setProperties(getHibernateProperties());
+
+        // Guarda la fabrica de sesiones
+        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(config.getProperties());
+        SessionFactory factory = config.buildSessionFactory(builder.build());
+
+        // Retorna una sesion de trabajo
+        return factory;
+
+    }
+
+    private static Properties getHibernateProperties() {
+        // Instancia un objeto del tipo Properties
+        Properties props = new Properties();
+
+        // Establece el driver de conexion dependiente del RDBMS
+        props.put("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
+
+        // Establece la url de conexion dependiente del RDBMS
+        props.put("hibernate.connection.url", "jdbc:mysql://localhost/hibernate");
+
+        // Establece el usuario
+        props.put("hibernate.connection.username", "root");
+
+        // Establece la clave
+        props.put("hibernate.connection.password", "");
+
+        // Establece el dialecto a utilizar
+        props.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+        
+        // Establece el uso de logging, deberá existir el archivo log4j.properties
+        props.put("hibernate.show_sql", "true");
+
+
+        // Retorna las propiedades
+        return props;
+
+    }
+
+    private static void registerMappers(Configuration config) throws MappingException {
+       config.addAnnotatedClass(ar.com.educacionit.hibernate.entities.Auto.class);
+       
+    }
+}
+
+
+-------App.java
+
+
+/*
+ * TestAutos.java
+ *
+ */
+
+package ar.com.educacionit.hibernate.testers;
+
+import ar.com.educacionit.hibernate.entities.Auto;
+import ar.com.educacionit.hibernate.entities.repository.AutoRepository;
+import ar.com.educacionit.hibernate.manager.SessionManager;
+import java.util.ArrayList;
+import java.util.List;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
+public class App {
+
+    private static Class Auto;
+
+    public static void main(String[] args) {
+
+        //MAIN DE LA SEGUNDA CLASE DE HIBERNATE:  
+        
+        SessionFactory factory = SessionManager.getSessionFactory();
+        
+        try{
+            AutoRepository autoRepo = new AutoRepository(factory);
+            
+            //acá estoy usando los métodos q creé en AutoRepository.java
+/*            Auto ford = new Auto("Ford", "Modelo", 200);
+            Long id = autoRepo.save(ford);
+            
+            ford.setId(id);
+            ford.setModelo("Fiesta");
+            autoRepo.update(ford);
+            
+            Auto cloneFord = autoRepo.getById(id);
+            System.out.println(cloneFord);
+            autoRepo.getAll().forEach(System.out::print);
+            autoRepo.delete(ford);
+  */      
+
+    //ahora quiero hacer una query p que me devuelva todas las marcas: 
+    //la query está adentro del método. ir a AutoRepository.java
+    autoRepo.getMarcas().forEach(System.out::println);
+    
+    //ahora quiero buscar el precio más alto. 
+    System.out.println(autoRepo.getMayorPrecio());
+
+    //qué pasa si hago esto? 
+    //autoRepo.getMayorPrecio().forEach(System.out::println);
+
+    //ahora quiero que la table me devuelva: 
+    //el precio máximo y el modelo de cada marca. 
+    //tuve que crear una clase Report.java,  y el método generateReport en AutoRepository.java; 
+    autoRepo.generateReport().forEach(System.out::println);
+    
+    int currentPage = 1; 
+    List<Auto> page = new ArrayList<>();
+
+    do{
+        page = autoRepo.getAllPaged(currentPage);
+        currentPage++;
+        page.forEach(System.out::println);
+    }while(page.size() >= AutoRepository.PAGE_SIZE);
+    
+    
+    int pages = autoRepo.pages();
+    System.out.println(pages); 
+    for(int i = 1; i <= pages; i++) {
+        autoRepo.getAllPaged(i).forEach(System.out::println);
+    }
+    
+    }finally{
+            factory.close();
+        }
+        
+
+    }  //main
+}  //class app
+
+
+-------AutoRepository.java
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ar.com.educacionit.hibernate.entities.repository;
+
+import ar.com.educacionit.hibernate.entities.Auto;
+import ar.com.educacionit.hibernate.entities.Report;
+import java.util.List;
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+/**
+ *
+ * @author educacionit
+ */
+public class AutoRepository {
+
+    public SessionFactory sessionFactory;
+
+    public AutoRepository(SessionFactory sessionFactory) {
+        if (sessionFactory == null){
+           throw new RuntimeException("sessionFactory could not be null"); 
+        }
+        this.sessionFactory = sessionFactory;
+    }
+    
+    public Long save(Auto auto){
+        Session s = sessionFactory.openSession();
+        Long id = 0L;
+        Transaction tx = null; 
+        
+        try{
+            tx = s.beginTransaction();
+            id = (Long) s.save(auto);
+            tx.commit();
+        }catch(HibernateException ex){
+            tx.rollback();
+            throw ex;
+        
+        }finally{            s.close();        }
+        
+        return id; 
+    }
+
+    public Auto update(Auto auto){
+        Session s = sessionFactory.openSession();
+        Transaction tx = null; 
+        
+        try{
+            tx = s.beginTransaction();
+            s.update(auto);
+            tx.commit();
+        }catch(HibernateException ex){
+            tx.rollback();
+            throw ex;
+        
+        }finally{            s.close();        }
+        
+        return auto; 
+    }
+
+
+    public Auto delete(Auto auto){
+        Session s = sessionFactory.openSession();
+        Transaction tx = null; 
+        
+        try{
+            tx = s.beginTransaction();
+            s.delete(auto);
+            tx.commit();
+        }catch(HibernateException ex){
+            tx.rollback();
+            throw ex;
+        
+        }finally{            s.close();        }
+        
+        return auto; 
+    }
+    
+    public Auto getById(Long id){
+        Session s = sessionFactory.openSession();
+        Auto auto = (Auto) s.get(Auto.class, id);
+        s.close();
+        return auto;
+    }
+
+    public List<Auto> getAll(){
+        Session s = sessionFactory.openSession();
+        List<Auto> autos = s.createQuery("From Auto").list();
+        s.close();
+        return autos;
+    }
+    
+    
+    public List <String> getMarcas(){
+        Session s = sessionFactory.openSession();
+        List <String> marcas = s.createQuery("SELECT DISTINCT a.marca FROM Auto a").list();
+        s.close();
+        return marcas;
+    }
+    
+    public float getMayorPrecio(){
+        Session s = sessionFactory.openSession();
+        float precio = (float) s.createQuery("SELECT MAX (a.precio) FROM Auto a").uniqueResult();
+        s.close();
+        return precio; 
+    }
+    
+    
+    public List <Report> generateReport(){
+        Session s = sessionFactory.openSession();
+        List  <Report> data = s.
+                createQuery("SELECT new ar.com.educacionit.hibernate.entities.Report(MAX(a.precio), a.modelo) "
+                + "FROM Auto a GROUP BY a.marca").list();
+        s.close(); 
+        return data; 
+    }
+    
+    //paginado: 
+    
+    //esto significa que cada página va a tener 3 valoreso filas. 
+    public static final int PAGE_SIZE = 3; 
+
+    //método p el paginado. 
+    public List <Auto> getAllPaged(int pageNumber){
+        Session s = sessionFactory.openSession();
+        List <Auto> page = s.
+                createQuery("FROM Auto").setFirstResult((pageNumber - 1)*PAGE_SIZE).
+                setMaxResults(PAGE_SIZE).list();
+        s.close();
+        return page;
+    }
+    
+    //método p saber el número de páginas. 
+    public int pages(){
+        Session s = sessionFactory.openSession();
+        Long count = (Long) s.createQuery("SELECT COUNT (a) FROM Auto a").uniqueResult(); 
+        int pages = (int) count/PAGE_SIZE; 
+        
+        //el problema es q estoy casteando objetos. 
+        //tengo que pasarlos a primitivos. 
+        pages = count%PAGE_SIZE == 0? pages :(pages+1);
+        
+        s.close();
+        return pages;
+    }
+
+    
+    //    pARA LA PRÓXIMA CLASE, VAMOS A VER UN OBJETO PAGABLE. 
+    
+}
+
+
+
+----Report.java
+
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ar.com.educacionit.hibernate.entities;
+
+/**
+ *
+ * @author educacionit
+ */
+public class Report {
+    
+    private float precio; 
+    private String modelo; 
+
+    public Report(float precio, String modelo) {
+        this.precio = precio;
+        this.modelo = modelo;
+    }
+    
+
+    public float getPrecio() {
+        return precio;
+    }
+
+    public String getModelo() {
+        return modelo;
+    }
+
+    public void setPrecio(float precio) {
+        this.precio = precio;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" + "precio=" + precio + ", modelo=" + modelo + '}';
+    }
+    
+    
+}
+
+
+
