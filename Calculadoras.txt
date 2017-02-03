@@ -1,0 +1,360 @@
+Dos formas de crear calculadoras en java: 
+
+
+package calculadora1;
+
+import java.util.Scanner; 
+
+public class calculadora {
+  public static void main (String[]args){
+		
+	//variables. 
+	String nombre; 
+	float a, b, resultado; 
+	int opcion;
+	Scanner s = new Scanner(System.in); 
+		
+
+	//inicio del programa. 
+	System.out.println("Cómo te llamás? ");
+		nombre = s.next();
+	System.out.println("Hola "+ nombre);
+   System.out.println("Bienvenido al programa CALCULADORA. "); 
+	System.out.println("Ingresa el primer número. "); 
+		a = s.nextFloat(); 
+				
+	System.out.println("Ingresa el segundo número. ");
+		b = s.nextFloat();
+
+	//menú (bucle). 
+	do{
+	System.out.println("Elige la operación que deseas realizar: ");
+	System.out.println("1. suma. ");
+	System.out.println("2. resta. ");
+	System.out.println("3. multiplicación ");
+	System.out.println("4. división. ");
+		opcion = s.nextInt();  
+		
+if (opcion < 1 || opcion > 4) { System.out.println("Debes elegir una de las opciones del menú. "); }
+		} while (opcion < 1 || opcion > 4); 
+
+	//resultado.   La forma correcta de hacerlo: 
+	switch (opcion){ 
+	 case 1: resultado = a+b;
+	 System.out.println("El resultado es: "+resultado);	break; 
+	 case 2: resultado = a-b;
+	 System.out.println("El resultado es: "+resultado);	break; 
+	 case 3: resultado = a*b;
+	 System.out.println("El resultado es: "+resultado);	break; 
+	 case 4: resultado = a/b;
+	 System.out.println("El resultado es: "+resultado);	break; 
+		} 
+
+/*  Otra forma:  
+	if (opcion == 1) {	resultado = a+b;
+	System.out.println(resultado);}
+		else if (opcion == 2) {	resultado = a-b;
+		System.out.println(resultado);} 
+			else if (opcion == 3) {	resultado = a*b;
+				System.out.println(resultado);}
+				else {resultado = a/b;
+				System.out.println(resultado);}		*/
+	
+	s.close();
+		
+	}  //main
+}  //class
+ 
+//CALCULADORA 2DA VERSIÓN. 
+
+
+package Paq;
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+
+public class calculadora extends JFrame {
+
+	//variables
+	  JButton boton[]; 
+	  double op1 = 0, op2 = 0;
+	  String operacion = "";
+	  boolean nueva = true;
+	  
+	//window
+	  public calculadora(){
+		//título
+		setTitle("Calculadora de Nicolás ");
+		//tamaño
+		setSize(300,300);
+		//dimensionable o no
+		setResizable(false);
+		//centrar
+		setLocationRelativeTo(null);
+		//salir al clickear la cruz
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		//ícono de la calculadora
+		setIconImage(new ImageIcon(getClass().getResource("/Paq/CC.jpg")).getImage());
+		
+		//crear interfaz y agregar eventos a los botones
+		init();
+		
+		//visible
+		setVisible(true);
+	  }  
+	  
+
+	//interface and functions
+	  //method
+	  private void init(){
+		//crear panel ppal con layout borderlayout
+		JPanel panel_principal = new JPanel();
+		panel_principal.setLayout(new BorderLayout());
+		//en el norte irá el texto
+		JTextField texto = new JTextField();
+		panel_principal.add("North", texto);
+		//en el centro irá el panel con los botones
+		JPanel panel_botones = new JPanel();
+		//subdividir con gridlayout(filas, columnas, espaciado_filas, espaciado_columnas)
+		panel_botones.setLayout(new GridLayout(4,4,1,1));
+		//agregar botones
+		panel_principal.add("Center", panel_botones);
+		//en el sur irá el botón de limpiar
+		JButton limpiar = new JButton("LIMPIAR");
+		panel_principal.add("South", limpiar);
+		//agregar todo este contenido a la ventana. 
+		getContentPane().add(panel_principal);
+	  
+	
+	  //method
+	  //private void agregar_botones(){
+		  boton = new JButton[17];	//inicializar vector boton; 
+		  
+		  boton[0] =new JButton("7");	//inicializar c/u de los botones; 
+		  boton[1] =new JButton("8");
+		  boton[2] =new JButton("9");
+		  boton[3] =new JButton("/");
+		  boton[4] =new JButton("4");
+		  boton[5] =new JButton("5");
+		  boton[6] =new JButton("6");
+		  boton[7] =new JButton("*");
+		  boton[8] =new JButton("1");
+		  boton[9] =new JButton("2");
+		  boton[10] =new JButton("3");
+		  boton[11] =new JButton("-");
+		  boton[12] =new JButton("0");
+		  boton[13] =new JButton(".");
+		  boton[14] =new JButton("=");
+		  boton[15] =new JButton("+");
+		  		
+		  //add
+		  for(int i = 0; i<16; i++)	{  panel_botones.add(boton[i]);  	  }  
+		  
+	  //events
+		  //operaciones
+	  boton[15].addActionListener(new ActionListener(){
+		@Override
+		public void actionPerformed(ActionEvent evt){
+			try{
+				if(op1 != 0){
+					op1 = op1 + Double.parseDouble(texto.getText());
+				} else{ op1 = Double.parseDouble(texto.getText());
+				operacion = "suma";
+				texto.setText(""); 		}
+					
+			}catch(Exception err){}
+			
+		}  //evt
+	  });  //boton15
+	  boton[11].addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent evt){
+				try{
+				 if(op1 != 0){
+					op1 = op1 - Double.parseDouble(texto.getText());
+					}else{ op1 = Double.parseDouble(texto.getText());
+					operacion = "resta";
+					texto.setText(""); 		}
+						
+				}catch(Exception err){}
+				
+			}  //evt
+		  });  //boton11
+	  boton[7].addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent evt){
+				try{
+				  if(op1 != 0){
+					op1 = op1 * Double.parseDouble(texto.getText());
+				  }else{ op1 = Double.parseDouble(texto.getText());
+					operacion = "multiplicación";
+					texto.setText(""); 		}
+						
+				}catch(Exception err){}
+				
+			}  //evt
+		  });  //boton11
+	  boton[3].addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent evt){
+				try{
+				  if(op1 != 0){
+					op1 = op1 / Double.parseDouble(texto.getText());
+  }else{ op1 = Double.parseDouble(texto.getText());
+					operacion = "división";
+					texto.setText(""); 		}
+				}catch(Exception err){}
+				
+			}  //evt
+		  });  //boton11
+
+	  
+	  	//numbers
+	  boton[0].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"7");
+		  }
+	  });
+	  boton[1].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"8");
+		  }
+	  });
+	  boton[2].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"9");
+		  }
+	  });
+	  boton[4].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"4");
+		  }
+	  });
+	  boton[5].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"5");
+		  }
+	  });
+	  boton[6].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"6");
+		  }
+	  });
+	  boton[8].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"1");
+		  }
+	  });
+	  boton[9].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"2");
+		  }
+	  });
+	  boton[10].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"3");
+		  }
+	  });
+	  boton[12].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+"0");
+		  }
+	  });
+	  boton[13].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  if(nueva){texto.setText(""); nueva = false;}
+			  texto.setText(texto.getText()+".");
+		  }
+	  });
+	  
+	  	//igual
+	  boton[14].addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  try{
+				  op2 = Double.parseDouble(texto.getText());
+			  }catch(Exception err){ }
+			  if(operacion.equals("suma")){
+				  double res = op1 + op2;
+				  texto.setText(String.valueOf(res));
+				  op1 = op2 = 0;			 
+				  operacion = "";
+				/* después de la operación,  op1, op2 y operacion
+				 * regresan a su estado original.	*/
+				  
+			  } else if(operacion.equals("resta")){
+				  double res = op1 - op2;
+				  texto.setText(String.valueOf(res));
+				  op1 = op2 = 0;			 
+				  operacion = "";					  
+			  } else if(operacion.equals("multiplicación")){
+				  double res = op1 * op2;
+				  texto.setText(String.valueOf(res));
+				  op1 = op2 = 0;			 
+				  operacion = "";
+			  } else if(operacion.equals("división")){
+				  double res = op1 / op2;
+				  texto.setText(String.valueOf(res));
+				  op1 = op2 = 0;			 
+				  operacion = "";	}
+
+		  }  //actionperformed
+		  
+	  });  //igual
+	  
+	    //limpiar  
+	  limpiar.addActionListener(new ActionListener(){
+		  @Override
+		  public void actionPerformed(ActionEvent evt){
+			  texto.setText("");
+			  op1 = op2 = 0;
+			  operacion = "";
+		  }
+		  
+	  });   //limpiar
+	  
+	  }  //init. 
+
+	  
+	//MAIN
+	  public static void main(String[]args){
+		  
+		//instanciar el objeto calculadora
+	   new calculadora();
+
+		
+//el único problema q le encuentro: permite escribir muchas veces el punto. 
+		
+	  }  //main
+}  //class
