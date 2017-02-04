@@ -1,0 +1,15 @@
+Threads dinámicos
+- - - - - - - - - - 
+
+Cómo lanzar n threads según la cantidad de núcleos o procesadores lógicos que tenga una computadora. 
+
+
+PSVM(String[] args){
+
+  Runtime r = Runtime.getRuntime();
+  int nNucleos = r.availableProcessors();
+
+  Thread[] hilos = new Thread[nNucleos];
+
+  for(int i=0; i<hilos.length; i++){
+    hilos[i] = //blabla...
